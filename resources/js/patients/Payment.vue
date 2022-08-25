@@ -12,37 +12,37 @@
                         <div class="col-12">
                             <h4>
                                 <i class="fas fa-globe"></i> St. Nicholas Hospital
-                                <small class="float-right">Date: 2/10/2014</small>
+                                <small class="float-right">Date: {{payment.date}}</small>
                             </h4>
                         </div>
                     </div>
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
-                            From
-                            <address>
-                                <strong>Admin, Inc.</strong><br>
-                                795 Folsom Ave, Suite 600<br>
-                                San Francisco, CA 94107<br>
-                                Phone: (804) 123-5432<br>
-                                Email: info@almasaeedstudio.com
+                            To
+                            <address v-if="payment.patient != null">
+                                <strong>{{payment.patient != null ? payment.patient.first_name+' '+payment.patient.last_name: ''}}</strong><br />
+                                {{payment.patient != null ? payment.patient.street+', '+payment.patient.street2: ''}}<br/>
+                                {{payment.patient != null ? payment.patient.city+', '+payment.patient.state_id: ''}}<br>
+                                San Francisco, CA 94107<br/>
+                                Phone: {{payment.patient != null ? payment.patient.phone: ''}}<br/>
+                                Email: {{payment.patient != null ? payment.patient.email: ''}}
                             </address>
                         </div>
                         <div class="col-sm-4 invoice-col">
-                            To
+                            From
                             <address>
-                                <strong>John Doe</strong><br>
-                                795 Folsom Ave, Suite 600<br>
-                                San Francisco, CA 94107<br>
+                                <strong>St. Nicholas Hospital</strong><br>
+                                57, Campbell Street,<br>
+                                Lagos Island, Lagos, Nigeria<br>
                                 Phone: (555) 539-1037<br>
-                                Email: john.doe@example.com
+                                Email: info@saintnicholashospital.com
                             </address>
                         </div>
                         <div class="col-sm-4 invoice-col">
                             <b>Invoice #007612</b><br>
                             <br>
                             <b>Order ID:</b> 4F3S8J<br>
-                            <b>Payment Due:</b> 2/22/2014<br>
-                            <b>Account:</b> 968-34567
+                            <b>Payment Date:</b> {{payment.date}}<br>
                         </div>
                     </div>
                     <div class="row">
@@ -60,10 +60,10 @@
                                 <tbody>
                                     <tr>
                                         <td>1</td>
-                                        <td>Call of Duty</td>
+                                        <td>{{payment.service.name}}</td>
                                         <td>455-981-221</td>
                                         <td>El snort testosterone trophy driving gloves handsome</td>
-                                        <td>$64.50</td>
+                                        <td>&#x20A6; {{payment.service.amount | currency}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -107,10 +107,45 @@
                         </div>
                     </div>
                 </div>
-            </div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+            </div>
+        </div>
+    </div>
 </section>  
 </template>
 <script>
+export default {
+    data(){
+        return {
+            payment: {},
+        }
+    },
+    methods:{
+        getAllInitials(){
+            axios.get('/api/emr/payments/'+this.$route.params.id).then(response =>{
+                this.payment = response.data.payment;
+                toast.fire({icon: 'success',title: 'Payment loaded successfully',});
+            })
+            .catch(()=>{
+                this.$Progress.fail();
+                toast.fire({
+                    icon: 'error',
+                    title: 'Payment not loaded successfully',
+                })
+            });
+        },
+        makePayment(payment){
+            this.$Progress.start();
+            this.paySpecific = true;
+            Fire.$emit('PaymentDataFill', payment);
+            $('#paymentModal').modal('show');
+            this.$Progress.finish();
+        },
+    },
+    mounted() {
+        this.getAllInitials();
+        Fire.$on('preliminaryAdd', message =>{
+            this.messages.push(message);
+        }); 
+    },
+} 
 </script>

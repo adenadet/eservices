@@ -1,141 +1,125 @@
 <template>
 <section class="content">
+    <div class="modal fade" id="paymentModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Make Payment</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <PatientPaymentForm />
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Appointment Details</h3>
 
             <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-success" title="Make Payment"><i class="fa fa-money-check"></i></button>
+            <router-link :to="'/patient/payment/'+appointment.id" type="button" class="btn btn-sm btn-success" title="Make Payment"><i class="fa fa-money-check"></i></router-link>
             <router-link to="/patient/appointments" ><button type="button" class="btn btn-sm btn-default" title="All Appointments"><i class="fa fa-arrow-left"></i></button></router-link>
             </div>
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+                <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1" v-if="appointment != null && appointment.service != null">
                     <div class="row">
-                    <div class="col-12 col-sm-4">
-                        <div class="info-box bg-light">
-                        <div class="info-box-content">
-                            <span class="info-box-text text-center text-muted">Cost of Service</span>
-                            <span class="info-box-number text-center text-muted mb-0">{{appointment.service.price | currency}}</span>
+                        <div class="col-12 col-sm-4">
+                            <div class="info-box bg-light">
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-center text-muted">Estimated Cost</span>
+                                    <span class="info-box-number text-center text-muted mb-0">{{appointment.service.price}}</span>
+                                </div>
+                            </div>
                         </div>
+                        <div class="col-12 col-sm-4">
+                            <div class="info-box bg-light bg-primary">
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-center text-muted">Status</span>
+                                    <span class="info-box-number text-center text-muted mb-0">{{appointment.status == 0 ? 'Unpaid' : (appointment == 9 ? 'Cancelled' : 'Paid')}}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-12 col-sm-4">
-                        <div :class="'info-box '+ appointment.status == 0 ? 'Unpaid' :(appointment.status == 1 ? 'Paid' :(appointment.status == 2 ? 'Reschedule' :(appointment.status == 3 ? 'Cancelled' : (appointment.status == 8 ? 'Certificate Sent' :'Done'))))">
-                        <div class="info-box-content">
-                            <span class="info-box-text text-center text-muted">Status</span>
-                            <span class="info-box-number text-center text-muted mb-0">{{appointment.status == 0 ? 'Unpaid' :(appointment.status == 1 ? 'Paid' :(appointment.status == 2 ? 'Reschedule' :(appointment.status == 3 ? 'Cancelled' : (appointment.status == 8 ? 'Certificate Sent' :'Done'))))}}</span>
+                        <div class="col-12 col-sm-4">
+                            <div class="info-box bg-light">
+                                <div class="info-box-content">
+                                    <span class="info-box-text text-center text-muted">Estimated duration</span>
+                                    <span class="info-box-number text-center text-muted mb-0">{{appointment.service.duration != null ? appointment.service.duration+' mins': 'Not Defined'}} </span>
+                                </div>
+                            </div>
                         </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-4">
-                        <div class="info-box bg-light">
-                        <div class="info-box-content">
-                            <span class="info-box-text text-center text-muted">Estimated project duration</span>
-                            <span class="info-box-number text-center text-muted mb-0">20</span>
-                        </div>
-                        </div>
-                    </div>
                     </div>
                     <div class="row">
-                    <div class="col-12">
-                        <h4>Recent Activity</h4>
-                        <div class="post">
-                            <div class="user-block">
-                            <img class="img-circle img-bordered-sm" src="/dist/img/user1-128x128.jpg" alt="user image">
-                            <span class="username">
-                                <a href="#">Jonathan Burke Jr.</a>
-                            </span>
-                            <span class="description">Shared publicly - 7:45 PM today</span>
+                        <div class="col-12">
+                            <h4>Recent Activity</h4>
+                            <div class="post" v-if="appointment.radiologist != null && apointment.radiologist_id != null">
+                                <div class="user-block">
+                                    <img class="img-circle img-bordered-sm" :src="appointment.radiologist != null ? '/img/profile/'+appointment.radiologist.image : '/img/profile/default.png'" alt="user image">
+                                    <span class="username"><a href="#">{{appointment.radiologist != null ? appointment.radiologist.first_name+' '+appointment.radiologist.last_name : 'Radiologist Undefined'}}</a>
+                                    </span>
+                                    <span class="description">Posted: {{appointment.radiologist_at | excelDate}}</span>
+                                </div>
+                                <p>{{appointment.radiologist_remark}}</p>
                             </div>
-                            <!-- /.user-block -->
-                            <p>
-                            Lorem ipsum represents a long-held tradition for designers,
-                            typographers and the like. Some people hate it and argue for
-                            its demise, but others ignore.
-                            </p>
 
-                            <p>
-                            <a href="#" class="link-black text-sm"><i class="fas fa-link mr-1"></i> Demo File 1 v2</a>
-                            </p>
-                        </div>
-
-                        <div class="post clearfix">
-                            <div class="user-block">
-                            <img class="img-circle img-bordered-sm" src="/dist/img/user7-128x128.jpg" alt="User Image">
-                            <span class="username">
-                                <a href="#">Sarah Ross</a>
-                            </span>
-                            <span class="description">Sent you a message - 3 days ago</span>
+                            <div class="post clearfix" v-if="appointment.medical_officer != null && appointment.doctor_id != null">
+                                <div class="user-block">
+                                    <img class="img-circle img-bordered-sm" :src="appointment.medical_officer != null && appointment.medical_officer.image != null ? '/img/profile/'+appointment.medical_officer.image : '/img/profile/default.png'" alt="user image">
+                                    <span class="username"><a href="#">{{appointment.medical_officer != null ? appointment.medical_officer.first_name+' '+appointment.medical_officer.last_name : 'Radiologist Undefined'}}</a>
+                                    </span>
+                                    <span class="description">Posted: {{appointment.medical_officer_at | excelDate}}</span>
+                                </div>
+                                <p>{{appointment.medical_officer_remark}}</p>
                             </div>
-                            <!-- /.user-block -->
-                            <p>
-                            Lorem ipsum represents a long-held tradition for designers,
-                            typographers and the like. Some people hate it and argue for
-                            its demise, but others ignore.
-                            </p>
-                            <p>
-                            <a href="#" class="link-black text-sm"><i class="fas fa-link mr-1"></i> Demo File 2</a>
-                            </p>
-                        </div>
 
-                        <div class="post">
-                            <div class="user-block">
-                            <img class="img-circle img-bordered-sm" src="/dist/img/user1-128x128.jpg" alt="user image">
-                            <span class="username">
-                                <a href="#">Jonathan Burke Jr.</a>
-                            </span>
-                            <span class="description">Shared publicly - 5 days ago</span>
+                            <div class="post clearfix" v-if="appointment.front_office != null && apointment.front_office_id != null">
+                                <div class="user-block">
+                                    <img class="img-circle img-bordered-sm" :src="appointment.front_office != null ? '/img/profile/'+appointment.front_office.image : '/img/profile/default.png'" alt="user image">
+                                    <span class="username"><a href="#">{{appointment.front_office != null ? appointment.front_office.first_name+' '+appointment.front_office.last_name : 'Radiologist Undefined'}}</a>
+                                    </span>
+                                    <span class="description">Posted: {{appointment.arrived_at | excelDate}}</span>
+                                </div>
+                                <p>{{appointment.front_office_remark}}</p>
                             </div>
-                            <!-- /.user-block -->
-                            <p>
-                            Lorem ipsum represents a long-held tradition for designers,
-                            typographers and the like. Some people hate it and argue for
-                            its demise, but others ignore.
-                            </p>
-
-                            <p>
-                            <a href="#" class="link-black text-sm"><i class="fas fa-link mr-1"></i> Demo File 1 v1</a>
-                            </p>
                         </div>
-                    </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
-                    <h3 class="text-primary"><i class="fas fa-paint-brush"></i> AdminLTE v3</h3>
-                    <p class="text-muted">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terr.</p>
-                    <br>
+                <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1" v-else>
+                    <img class="img-fluid" src="/img/loading/1.gif"/>
+                </div>
+                <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2" v-if="appointment.patient != null">
+                    <h4 class="text-primary"><i class="fas fa-user"></i> {{appointment.patient.first_name+' '+appointment.patient.other_name+' '+appointment.patient.last_name}}</h4>
                     <div class="text-muted">
-                    <p class="text-sm">Client Company
-                        <b class="d-block">Deveint Inc</b>
-                    </p>
-                    <p class="text-sm">Project Leader
-                        <b class="d-block">Tony Chicken</b>
-                    </p>
+                        <p class="text-sm">Sex | Age: <b class="d-block">{{appointment.patient.sex}} | {{appointment.patient.dob | age}} years</b></p>
+                        <p class="text-sm">Registered at: <b class="d-block">{{appointment.patient.created_at | excelDate}}</b></p>
+                        <p class="text-sm">Nationality: <b class="d-block">{{appointment.patient.nationality != null && appointment.patient.nationality_id != null ? appointment.patient.nationality.name : 'None Given'}}</b></p>
+                        <p class="text-sm">Passport: <b class="d-block">{{appointment.patient.passport_no != null ? appointment.patient.passport_no :'Request Passport' }}</b>
+                        </p>
                     </div>
 
                     <h5 class="mt-5 text-muted">Project files</h5>
                     <ul class="list-unstyled">
-                    <li>
+                        <li>
                         <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-word"></i> Functional-requirements.docx</a>
-                    </li>
-                    <li>
+                        </li>
+                        <li>
                         <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> UAT.pdf</a>
-                    </li>
-                    <li>
+                        </li>
+                        <li>
                         <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-envelope"></i> Email-from-flatbal.mln</a>
-                    </li>
-                    <li>
+                        </li>
+                        <li>
                         <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-image "></i> Logo.png</a>
-                    </li>
-                    <li>
+                        </li>
+                        <li>
                         <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-word"></i> Contract-10_12_2014.docx</a>
-                    </li>
+                        </li>
                     </ul>
                     <div class="text-center mt-5 mb-3">
-                    <a href="#" class="btn btn-sm btn-primary">Add files</a>
-                    <a href="#" class="btn btn-sm btn-warning">Report contact</a>
+                        <a href="#" class="btn btn-sm btn-primary">Add files</a>
+                        <a href="#" class="btn btn-sm btn-warning">Report contact</a>
                     </div>
                 </div>
             </div>
@@ -163,6 +147,13 @@ export default {
                     title: 'Appointment not loaded successfully',
                 })
             });
+        },
+        makePayment(appointment){
+            this.$Progress.start();
+            this.paySpecific = true;
+            Fire.$emit('PaymentDataFill', appointment);
+            $('#paymentModal').modal('show');
+            this.$Progress.finish();
         },
     },
     mounted() {

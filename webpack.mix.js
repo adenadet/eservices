@@ -1,9 +1,5 @@
 const mix = require('laravel-mix');
 
-mix.js('resources/js/app.js', 'js')
-   .vue({ version: 2 })
-   .setPublicPath('public');
-   
-if (mix.inProduction()) {
-    mix.version();
-} 
+mix.js('resources/js/app.js', 'public/js').vue()
+    .sass('resources/sass/app.scss', 'public/css')
+    .sourceMaps();

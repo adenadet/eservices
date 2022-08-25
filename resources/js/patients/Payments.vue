@@ -21,7 +21,7 @@
                     <div class="card-header">
                         <h3 class="card-title">All Payments</h3>
                         <div class="card-tools">
-                            <button class="btn btn-sm btn-primary"><i class="fa fa-calendar-plus"></i> Book Payment</button>
+                            <button class="btn btn-sm btn-primary"><i class="fa fa-calendar-plus mr-1"></i>Make Payment</button>
                         </div>
                     </div>
                     <div class="card-body table-responsive p-0">
@@ -31,12 +31,13 @@
                                 <tr v-if="payments.data == null || payments == null">
                                     <td colspan="6" class="text-center">You have not made any payments yet</td>
                                 </tr>
-                                <tr v-for="payment in payments.data" :key="payment.id">
-                                    <td>183</td>
-                                    <td>John Doe</td>
-                                    <td>11-7-2014</td>
+                                <tr v-for="(payment, index) in payments.data" :key="payment.id">
+                                    <td>{{index | addOne}}</td>
+                                    <td>{{payment.service.name}}</td>
+                                    <td>{{payment.date | excelDate}}</td>
                                     <td><span class="tag tag-success">Approved</span></td>
-                                    <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback doner.</td>
+                                    <td></td>
+                                    <td><router-link class="btn btn-success btn-sm" :to="'/patient/payment/'+payment.id"><i class="fa fa-eye"></i></router-link></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -59,14 +60,17 @@ export default {
     mounted() {
         this.getInitials();
         Fire.$on('refreshPayment', response =>{
+            console.log(response.data.payments)
             this.refreshPayment(response);
         });
     },
     methods:{  
         getInitials(){
             axios.get('/api/emr/payments').then(response =>{
-                this.refreshPayment(response)
-                Fire.$emit('refreshPayment', response);
+                console.log(response.data.payments);
+                this.payments = response.data.payments;
+                //this.refreshPayment(response)
+                //Fire.$emit('refreshPayment', response);
             })
             .catch(()=>{
                 this.$Progress.fail();
@@ -77,7 +81,7 @@ export default {
             });
         }, 
         refreshPayments(response){
-            this.paymnets = response.data.payments;
+            this.payments = response.data.payments;
         }
     },
     props:{}
